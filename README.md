@@ -11,17 +11,19 @@ Features at present:
 1. Read .pcap files
 2. extract source and destination Ip addresses
 3. If Ip address belongs to blacklisted category:
-   a. extract its location from GeoLiteCity.dat database
-   b. print on console or generate .kml file for Google maps
+   a. extract its location from GeoLite2-city database
+   b. output location of the blacklisted Ip addresses, with label of source or destination
 ```
 
 How to run:
 1. Fork this repository and clone in your local environment
-2. install Required packages, check requirements.txt
+2. Cd into this project repository
+3. install Required packages, check requirements.txt
   ```bash
   pip install <package-name>
   ```
-3. to run
+4. to run
  ```bash
- python3 main.py
+ streamlit run main.py
  ```
+Future aspects : Include Live packet capturing rather then reading .pcap files.
