@@ -1,59 +1,53 @@
-import webbrowser
-import pyshark
-from printData import printPacketData
 import os
-from view_google import view_on_google
+import pandas as pd
+import numpy as np
+import pyarrow as pa
+from getLocation import get_geolocation
+from extract_Ip import extract_ip_addresses
+import streamlit as st
 
+# Streamlit app
 def main():
-    # Code to be executed when the script is run directly
+    st.title("Network Anomalies")
+    IP_data = []
 
-    print("[+] Enter mode: ")
-    print("[+] Type 1 for cli (to print location on commandline)")
-    print("[+] Type 2 for kml(to print location on google map)")
-    choice = int(input())
+    uploaded_file = st.file_uploader("Upload a .pcap file", type=".pcap")
 
-    print("[+] Enter path of GeoLiteIp.dat file")
-    dataPath = input()
+    if uploaded_file is not None:
+        pcap_contents = uploaded_file.read()
 
-    if (not os.path.exists(dataPath)):
-        print("[-] File doesn't exist")
-        return
+        with open("uploaded.pcap", "wb") as f:
+            f.write(pcap_contents)
 
-    blackListIp = ['2.1.1.2','2.1.1.1','103.229.206.240','192.168.43.108','2a03:2880:f22f:c5:face:b00c:0:167', '2409:4055:496:ab1e:ef70:9540:fee8:9832', '212.242.33.35' ,'147.137.21.94','157.39.74.255','2409:4055:496:ab1e:ef70:9540:fee8:9832']
+        ip_addresses = extract_ip_addresses("uploaded.pcap")
 
-    # capture = pyshark.LiveCapture(interface='wlo1')
-    # capture.sniff(timeout=50)
+        for ip_src, ip_dst in ip_addresses:
+            new_entry = {
+                "sourceIp": f"{ip_src}",
+                "destinationIp": f"{ip_dst}"
+            }
+            is_present = any(entry["sourceIp"] == new_entry["sourceIp"] and entry["destinationIp"] == new_entry["destinationIp"] for entry in IP_data)
 
-    capture = pyshark.FileCapture('ipv4frags.pcap')
-    # for packet in capture.sniff_continuously(packet_count=5):
-    for packet in capture:
-        print('Just arrived:', packet)
+            if not is_present:
+                IP_data.append(new_entry)
 
-        if(choice == 1):
-            print("printing on console")
-            printPacketData(packet,blackListIp,dataPath)
-        elif(choice == 2):
-            print("""
-            <?xml version="1.0" encoding="UTF-8"?>
-            <kml xmlns="http://www.opengis.net/kml/2.2">
-            <Document>
-                <name>sourceip.kml</name>
-                <open>1</open>
-                <Style id="exampleStyleDocument">
-                <LabelStyle>
-                    <color>ff0000cc</color>
-                </LabelStyle>
-                </Style>\n""")
-            view_on_google(packet, dataPath, blackListIp)
-            print( """\n
-            </Document>
-            </kml>
-            """)
-            new=1
-            url="https://www.google.com/maps/d/splash?app=mp"
-            webbrowser.open(url,new=new)
-                                                                                                
-# Check if the script is being run directly
+        st.subheader("Add Blacklisted IP Addresses")
+        new_value = st.text_input('Type an IP')
+
+        if st.button('Add'):
+            blackListed = [new_value]
+            Location_df = pd.DataFrame(IP_data)
+            Location_df[["city", "region_code", "country", "Latitude", "Longitude", "blacklisted"]] = Location_df.apply(lambda row: pd.Series(get_geolocation(row["sourceIp"], row["destinationIp"], blackListed)), axis=1)
+
+            Location_df["Latitude"] = pd.to_numeric(Location_df["Latitude"], errors="coerce")  # Convert Latitude to float, handle invalid values as NaN
+            Location_df["Longitude"] = pd.to_numeric(Location_df["Longitude"], errors="coerce")  # Convert Longitude to float, handle invalid values as NaN
+
+            # Serialize DataFrame to Arrow table
+            table = pa.Table.from_pandas(Location_df)
+
+            st.dataframe(Location_df)
+
+        os.remove("uploaded.pcap")
+
 if __name__ == "__main__":
-    # Call the main function
     main()

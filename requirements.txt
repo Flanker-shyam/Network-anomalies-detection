@@ -1,3 +1,8 @@
 pyshark
 pygeoip
-
+geoip2
+os
+pandas
+numpy
+pyarrow
+streamlit 
