@@ -4,6 +4,7 @@ import numpy as np
 import pyarrow as pa
 from getLocation import get_geolocation
 from extract_Ip import extract_ip_addresses
+from show_upload_progress import upload_progress_bar
 import streamlit as st
 
 # Streamlit app
@@ -20,6 +21,9 @@ def main():
             f.write(pcap_contents)
 
         ip_addresses = extract_ip_addresses("uploaded.pcap")
+        if len(ip_addresses)==0:
+            st.write("No packet found in the file")
+            return
 
         for ip_src, ip_dst in ip_addresses:
             new_entry = {
