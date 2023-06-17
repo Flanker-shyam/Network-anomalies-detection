@@ -14,8 +14,7 @@ Features at present:
    a. extract its location from GeoLite2-city database
    b. output location of the blacklisted Ip addresses, with label of source or destination
 ```
-
-[Demo Video](https://github.com/Flanker-shyam/Network-anomalies-detection/assets/85950516/b2ca210d-539a-4d9f-a42f-949e5e3a1fff)
+[Demo_Video.webm](https://github.com/Flanker-shyam/Network-anomalies-detection/assets/85950516/a1d48cb9-97f4-4725-992e-46c7796026b0)
 
 How to run:
 1. Fork this repository and clone in your local environment
