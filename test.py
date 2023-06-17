@@ -30,10 +30,18 @@ def main():
     button_clicked = st.button("Process")
 
     if file_uploaded is not None and button_clicked:
+        # Progress bar for file upload
+        progress_bar_upload = st.progress(0)
+
+        # Read file contents
         pcap_contents = file_uploaded.read()
 
+        # Write file to disk
         with open("uploaded.pcap", "wb") as f:
             f.write(pcap_contents)
+
+        # Update progress bar for file upload
+        progress_bar_upload.progress(1.0)
 
         ip_addresses = extract_ip_addresses("uploaded.pcap")
         if len(ip_addresses) == 0:
@@ -54,16 +62,27 @@ def main():
                 IP_data.append(new_entry)
 
         Location_df = pd.DataFrame(IP_data)
-        Location_df[["city", "region_code", "country", "Latitude", "Longitude", "blacklisted"]] = Location_df.apply(
-            lambda row: pd.Series(get_geolocation(row["sourceIp"], row["destinationIp"], session_state.blackListed)), axis=1
+        Location_df[["ipType","blacklisted","city", "region_code", "country", "Latitude", "Longitude"]] = Location_df.apply(
+            lambda row: pd.Series(get_geolocation(row["destinationIp"], session_state.blackListed)), axis=1
         )
 
         Location_df["Latitude"] = pd.to_numeric(Location_df["Latitude"], errors="coerce")  # Convert Latitude to float, handle invalid values as NaN
         Location_df["Longitude"] = pd.to_numeric(Location_df["Longitude"], errors="coerce")  # Convert Longitude to float, handle invalid values as NaN
 
+        # Progress bar for processing
+        progress_bar_processing = st.progress(0)
+
         # Serialize DataFrame to Arrow table
         table = pa.Table.from_pandas(Location_df)
 
+        # Update progress bar for processing
+        progress_bar_processing.progress(1.0)
+
+        pd.set_option('display.max_columns', None)
+        selected_rows4 = Location_df.loc[Location_df['blacklisted'] == 'Yes']
+        st.header("Detected Anomalies (These Source IPs are going on blacklisted websites)")
+        st.dataframe(selected_rows4)
+        st.header("Summary of all the packets")
         st.dataframe(Location_df)
 
         os.remove("uploaded.pcap")
