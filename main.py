@@ -81,7 +81,10 @@ def main():
         pd.set_option('display.max_columns', None)
         selected_rows4 = Location_df.loc[Location_df['blacklisted'] == 'Yes']
         st.header("Detected Anomalies (These Source IPs are going on blacklisted websites)")
-        st.dataframe(selected_rows4)
+        if selected_rows4.empty:
+            st.text("Wow, No Anomalies detected !!")
+        else: 
+            st.dataframe(selected_rows4)
         st.header("Summary of all the packets")
         st.dataframe(Location_df)
 
