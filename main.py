@@ -1,16 +1,16 @@
 import os
+import streamlit as st
 import pandas as pd
-import numpy as np
 import pyarrow as pa
 from getLocation import get_geolocation
 from extract_Ip import extract_ip_addresses
-import streamlit as st
 
 # Streamlit app
+
 def main():
     st.title("Network Anomalies")
     IP_data = []
-
+ 
     # Initialize SessionState
     session_state = get_session_state()
 
@@ -41,7 +41,7 @@ def main():
             f.write(pcap_contents)
 
         # Update progress bar for file upload
-        progress_bar_upload.progress(1.0)
+        progress_bar_upload.progress(1.0) 
 
         ip_addresses = extract_ip_addresses("uploaded.pcap")
         if len(ip_addresses) == 0:
@@ -100,3 +100,6 @@ def get_session_state():
 
 if __name__ == "__main__":
     main()
+
+
+

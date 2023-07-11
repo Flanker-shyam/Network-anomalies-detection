@@ -1,6 +1,5 @@
 import os
 import pandas as pd
-import numpy as np
 import pyarrow as pa
 from getLocation import get_geolocation
 from extract_Ip import extract_ip_addresses
@@ -48,18 +47,23 @@ def main():
             st.write("No packet found in the file")
             return
 
-        for ip_src, ip_dst in ip_addresses:
+        for ip_src, ip_dst, timestamp in ip_addresses:
             new_entry = {
                 "sourceIp": f"{ip_src}",
-                "destinationIp": f"{ip_dst}"
+                "destinationIp": f"{ip_dst}",
+                "timestamp": f"{timestamp}"
             }
+
             is_present = any(
-                entry["sourceIp"] == new_entry["sourceIp"] and entry["destinationIp"] == new_entry["destinationIp"]
+                entry["sourceIp"] == new_entry["sourceIp"] and
+                entry["destinationIp"] == new_entry["destinationIp"] and
+                entry["timestamp"] == new_entry["timestamp"]  # Corrected access to the "timestamp" key
                 for entry in IP_data
             )
 
             if not is_present:
                 IP_data.append(new_entry)
+
 
         Location_df = pd.DataFrame(IP_data)
         Location_df[["ipType","blacklisted","city", "region_code", "country", "Latitude", "Longitude"]] = Location_df.apply(

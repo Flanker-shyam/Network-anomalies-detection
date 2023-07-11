@@ -1,9 +1,6 @@
-pyshark
-pygeoip
-geoip2
-os
-pandas
-numpy
-pyarrow
-streamlit 
-ipaddress
+pyshark==0.6
+pygeoip==0.3.2
+geoip2==4.7.0
+pandas==1.5.3
+pyarrow==11.0.0
+streamlit==1.23.1

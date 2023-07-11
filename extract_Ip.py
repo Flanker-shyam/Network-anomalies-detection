@@ -16,9 +16,10 @@ def extract_ip_addresses(pcap_file):
                 # Extract the source and destination IP addresses
                 src_ip = packet['IP'].src
                 dst_ip = packet['IP'].dst
+                timestamp = packet.sniff_time
 
                 # Add the IP addresses to the list
-                ip_addresses.append((src_ip, dst_ip))
+                ip_addresses.append((src_ip, dst_ip,timestamp))
 
     # Close the pcap file
     cap.close()
