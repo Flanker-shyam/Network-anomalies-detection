@@ -21,7 +21,7 @@ How to run:
 2. Cd into this project repository
 3. install Required packages, check requirements.txt
   ```bash
-  pip install <package-name>
+  pip install -r requirements.txt
   ```
 4. to run
  ```bash
